@@ -47,6 +47,11 @@ RSpec.describe "ActiveSequel.get_scopes" do
     expect(ds.all.map { |r| r[:name] }).to eq(["Ann"])
   end
 
+  it "returns datasets that stay chainable with Sequel" do
+    ds = scopes.admin(User.admin.to_dataset).where(name: "Ann")
+    expect(ds.select_map(:name)).to eq(["Ann"])
+  end
+
   it "can be chained" do
     ds = scopes.named(scopes.admin(User.to_dataset), "Cid")
     expect(ds.all.map { |r| r[:name] }).to eq(["Cid"])

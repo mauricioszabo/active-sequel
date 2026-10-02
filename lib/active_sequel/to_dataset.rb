@@ -7,9 +7,9 @@ module ActiveSequel
   end
 
   module RelationToDataset
-    # Relation => dataset running the relation's SQL
+    # Relation => chainable dataset selecting from the relation's SQL as a subquery
     def to_dataset
-      ActiveSequel.db.fetch(to_sql)
+      ActiveSequel.db.from(Sequel.as(Sequel.lit("(#{to_sql})"), klass.table_name.to_sym))
     end
   end
 end

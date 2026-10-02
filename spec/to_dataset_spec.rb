@@ -13,8 +13,15 @@ RSpec.describe "#to_dataset" do
     relation = User.where(admin: true).order(:name)
     ds = relation.to_dataset
     expect(ds).to be_a(Sequel::Dataset)
-    expect(ds.sql).to eq(relation.to_sql)
+    expect(ds.sql).to eq("SELECT * FROM (#{relation.to_sql}) AS `users`")
     expect(ds.all.map { |r| r[:name] }).to eq(["Ann"])
+  end
+
+  it "is fully chainable with Sequel methods" do
+    ds = User.order(:name).to_dataset
+    expect(ds.where(name: "Bob").select_map(:name)).to eq(["Bob"])
+    expect(ds.select(:name).order(Sequel.desc(:name)).select_map(:name)).to eq(%w[Bob Ann])
+    expect(User.where(admin: false).to_dataset.where(Sequel[:age] > 10).select_map(:name)).to eq(["Bob"])
   end
 
   it "works with scopes and associations" do
