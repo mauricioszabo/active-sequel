@@ -13,7 +13,7 @@ RSpec.describe "#to_dataset" do
     relation = User.where(admin: true).order(:name)
     ds = relation.to_dataset
     expect(ds).to be_a(Sequel::Dataset)
-    expect(ds.sql).to eq("SELECT * FROM (#{relation.to_sql}) AS `users`")
+    expect(ds.sql).to match(/\ASELECT \* FROM \(#{Regexp.escape(relation.to_sql)}\) AS \W?users\W?\z/)
     expect(ds.all.map { |r| r[:name] }).to eq(["Ann"])
   end
 
